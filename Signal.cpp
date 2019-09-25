@@ -1,16 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/* 
- * File:   Signal.cpp
- * Author: rlcancian
- * 
- * Created on 03 de Junho de 2019, 15:20
- */
-
 #include "Signal.h"
 #include "Entity.h"
 #include "Hold.h"
@@ -33,34 +20,46 @@ inline bool instanceof(const T*) {
    return std::is_base_of<Base, T>::value;
 }
 
+//TODO Colocar o instance of antes daquele cast ali.
+
 void Signal::_execute(Entity* entity) {
-	std::list<ModelComponent*>::iterator it = _model->getComponentManager()->begin();
-	for (; it != _model->getComponentManager()->end(); it++) {
-		auto component = *it;
-		if (instanceof<Hold>(*it)) {
-			Hold* h = ((Hold*)(*it));
-			if (h->getWaitForValueExpr() == signalName) {
-				h->release_signal(limit);
-			}
-		}
-	}
-	_model->sendEntityToComponent(entity, this->getNextComponents()->front(), 0.0);
+    for(int i = 0; i < _holds_waiting_signal->size(); i++) {
+        Waiting* waiting = _holds_waiting_signal->getAtRank(i);
+
+        auto component = waiting->getComponent();
+        Hold* h = ((Hold*)(component));
+        h->release_signal(limit);
+    }
 }
 std::string Signal::show() {
-	return ModelComponent::show() + "";
+    return ModelComponent::show() + "";
 }
 PluginInformation* Signal::GetPluginInformation() {
-	return new PluginInformation(Util::TypeOf<Signal>(), &Hold::LoadInstance);
+    return new PluginInformation(Util::TypeOf<Signal>(), &Hold::LoadInstance);
 }
 
 void Signal::_initBetweenReplications() {
-	
+    
+}
+
+
+void Signal::setQueueName(std::string _name) throw() {
+    Queue* queue = dynamic_cast<Queue*>(_model->getElementManager()->getElement(Util::TypeOf<Queue>(), _name));
+    if (queue != nullptr) {
+        _holds_waiting_signal = queue;
+    } else {
+        throw std::invalid_argument("Queue does not exist");
+    }
+}
+
+std::string Signal::getQueueName() const {
+    return _holds_waiting_signal->getName();
 }
 
 ModelComponent* Signal::LoadInstance(Model* model, std::map<std::string, std::string>* fields) {
     Signal* newComponent = new Signal(model);
     try {
-	newComponent->_loadInstance(fields);
+    newComponent->_loadInstance(fields);
     } catch (const std::exception& e) {
     }
     return newComponent;

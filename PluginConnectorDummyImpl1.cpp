@@ -26,6 +26,9 @@
 #include "Route.h"
 #include "Enter.h"
 #include "Leave.h"
+#include "Hold.h"
+#include "Signal.h"
+
 
 // Model elements
 #include "EntityType.h"
@@ -38,8 +41,6 @@
 #include "ODE.h"
 
 #include "Util.h"
-#include "Signal.h"
-#include "Hold.h"
 
 PluginConnectorDummyImpl1::PluginConnectorDummyImpl1() {
 }
@@ -105,13 +106,11 @@ Plugin* PluginConnectorDummyImpl1::connect(const std::string dynamicLibraryFilen
     else if (fn == "enter.so")
 	GetInfo = &Enter::GetPluginInformation;
     else if (fn == "leave.so")
-    GetInfo = &Leave::GetPluginInformation;
+	GetInfo = &Leave::GetPluginInformation;
     else if (fn=="hold.so")
     GetInfo = &Hold::GetPluginInformation;
     else if (fn=="signal.so")
     GetInfo = &Signal::GetPluginInformation;
-	GetInfo = &Leave::GetPluginInformation;
-    //else if (fn=="")
 
     if (GetInfo != nullptr) {
 	pluginResult = new Plugin(GetInfo);

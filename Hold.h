@@ -41,7 +41,8 @@ public:
     Type getType() const;
     std::string getWaitForValueExpr() const;
     std::string getQueueName() const;
-    void Hold::release_signal(int limit);
+
+    void release_signal(int _limit);
 
 protected:
     virtual void _execute(Entity* entity);
@@ -57,3 +58,4 @@ private:
 };
 
 #endif /* HOLD_H */
+
